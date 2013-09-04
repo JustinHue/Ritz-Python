@@ -21,6 +21,7 @@ class Scene():
     ON_KEYDOWN = 1
     ON_CONTINUE = 0
     ON_QUIT = -1
+    ON_TERMINATE = -2
     
     """
         Fade Constants
@@ -28,6 +29,9 @@ class Scene():
     FADE_IN = 0
     FADE_OUT = 1
     FADE_NONE = -1
+    FADE_SPEED = 5
+    FADE_ALPHA_MAX = 255
+    FADE_ALPHA_MIN = 0
     
     def __init__(self, width, height, caption, flags=0, depth=0):
         pygame.init()
@@ -45,7 +49,7 @@ class Scene():
         self.sprites = []
         
         self.retval = self.ON_CONTINUE
-
+        self.fadeTerminate = False
 
     def prepare(self):
         
@@ -66,12 +70,15 @@ class Scene():
         """
             Make sprites a group and add to groups
         """
-        self.groups.append(pygame.sprite.Group(self.sprites))
+        self.spriteGroup = pygame.sprite.Group()
+        for sprite in self.sprites:
+            self.spriteGroup.add(sprite)
+        self.groups.append(self.spriteGroup)
         
         self.fadeBackground = pygame.surface.Surface(self.screen.get_size())
         self.fadeBackground.fill(color.BLACK)
-        self.fadeAlpha = 0
-        self.fadeState = self.FADE_NONE
+        self.fadeAlpha = self.FADE_ALPHA_MAX
+        self.fadeState = self.FADE_IN
         
         
     def run(self):
@@ -82,6 +89,7 @@ class Scene():
             for group in self.groups:
                 for sprite in group:
                     sprite.doEvent(event)
+            self.doEvent(event)
             
             """
                 Handle event return
@@ -101,18 +109,28 @@ class Scene():
         
         self.update()
         for group in self.groups:
-            group.clear(self.screen, self.background)
             group.update()
+            group.clear(self.screen, self.background)
             group.draw(self.screen)
             
         """
             Handle fade in and out effect
         """
         if (self.fadeState == self.FADE_IN):
-            self.fadeAlpha -= 1
+            self.fadeAlpha -= self.FADE_SPEED
+            if (self.fadeAlpha == self.FADE_ALPHA_MIN):
+                self.fadeState = self.FADE_NONE
         elif (self.fadeState == self.FADE_OUT):
-            self.fadeAlpha += 1
-            
+            self.fadeAlpha += self.FADE_SPEED
+            if (self.fadeAlpha == self.FADE_ALPHA_MAX):
+                self.fadeState = self.FADE_NONE
+                """ 
+                    Termiante scene if fade terminate is set, thus ending scene on fade out
+                """
+                if (self.fadeTerminate):
+                    self.retval = self.ON_TERMINATE
+                    
+                    
         self.fadeBackground.set_alpha(self.fadeAlpha)
         self.screen.blit(self.fadeBackground, (0,0))
         pygame.display.flip()
@@ -128,6 +146,9 @@ class Scene():
     def update(self):
         pass
     
+    def doEvent(self, event):
+        pass
+    
     def setCaption(self, caption):
         self.title = caption
         pygame.display.set_caption(self.title)
@@ -135,8 +156,9 @@ class Scene():
     def fadeIn(self):
         self.fadeState = self.FADE_IN
         
-    def fadeOut(self):
+    def fadeOut(self, terminate):
         self.fadeState = self.FADE_OUT
+        self.fadeTerminate = terminate
     
 class SplashScene(Scene):
     DELAY_MAX = 120

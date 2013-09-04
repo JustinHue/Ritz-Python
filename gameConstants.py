@@ -7,6 +7,8 @@ Created on Aug 27, 2013
 import pygame
 pygame.init()
 
+
+
 FALLING = "falling"
 IDLE = "idle"
 JUMPING = "jumping"
@@ -24,12 +26,18 @@ GFX_DIR = "gfx/"
 SFX_DIR = "sfx/"
 MFX_DIR = "mfx/"
 RITZ_DIR = GFX_DIR + "ritz/"
+DATA_DIR = "data/"
+
+"""
+    Music Constants
+"""
+MFX_SPLASH_SCREEN = MFX_DIR + "splash_scene_them.ogg"
 
 """
     Map data file constants
 """
-INSTRUCTIONS_MAP = "instructions.dat"
-START_SCREEN_MAP = "startscreen.dat"
+INSTRUCTIONS_MAP = DATA_DIR + "instructions.dat"
+START_SCREEN_MAP = DATA_DIR + "startscreen.dat"
 
 
 """

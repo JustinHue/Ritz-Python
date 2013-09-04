@@ -5,10 +5,13 @@ Created on Aug 26, 2013
 '''
 
 import gameEngine
+import gameMaps
 import gameSprites
 import gameConstants
 
 class SplashScene(gameEngine.scene.Scene):
+    DELAY = 120
+    MUSIC_DELAY = 15
     def __init__(self):
         gameEngine.scene.Scene.__init__(self, 
                                         gameConstants.SPLASH_SCENE_WIDTH, 
@@ -19,11 +22,23 @@ class SplashScene(gameEngine.scene.Scene):
         
         self.splashImage = gameSprites.SplashSprite((self.width / 2, 
                                                      self.height / 2))
-        self.ritzImage = gameSprites.RitzSprite((100, 100))
-         
+
         self.sprites.append(self.splashImage)
-        self.sprites.append(self.ritzImage)
         
+        self.__delayCounter = 0
+        
+
+    def update(self):
+        self.__delayCounter += 1
+        if (self.__delayCounter == self.DELAY):
+            self.fadeOut(True)
+        elif (self.__delayCounter == self.MUSIC_DELAY):
+            gameEngine.mixer.playMusic(gameConstants.MFX_SPLASH_SCREEN)
+            
+    def doEvent(self, event):
+        pass
+    
+ 
 class InstructionScene(gameEngine.scene.Scene):
     def __init__(self):
         gameEngine.scene.Scene.__init__(self, 
@@ -32,8 +47,22 @@ class InstructionScene(gameEngine.scene.Scene):
                                         gameConstants.INSTRUCTIONS_SCENE_CAPTION,
                                         gameConstants.INSTRUCTIONS_SCENE_FLAGS,
                                         gameConstants.INSTRUCTIONS_SCENE_DEPTH)
+
+        self.tileMap = gameMaps.InstructionsMap(self)
+        self.sprites.append(self.tileMap) 
+        self.x = 0
         
+    def update(self):
+        gameEngine.scene.Scene.update(self)
         
+        self.x += 1
+        self.tileMap.setScrollPosition(0, self.x)
+        
+
+    def doEvent(self, event):
+        gameEngine.scene.Scene.doEvent(self, event)
+
+
 class StartScene(gameEngine.scene.Scene):
     def __init__(self):
         gameEngine.scene.Scene.__init__(self, 

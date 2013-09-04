@@ -24,7 +24,7 @@ def main():
     """
     currentScene = splashScene
     isRunning = True
-    
+
     """
         Game Loop
     """
@@ -35,6 +35,8 @@ def main():
         else:   
             if (currentScene == splashScene):
                 if (state == currentScene.ON_KEYDOWN):
+                    currentScene.fadeOut(True)
+                elif (state == currentScene.ON_TERMINATE):
                     currentScene = instructionScene
                     instructionScene.prepare()
             elif (currentScene == instructionScene):
