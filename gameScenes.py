@@ -9,6 +9,8 @@ import gameMaps
 import gameSprites
 import gameConstants
 
+import pygame
+
 class SplashScene(gameEngine.scene.Scene):
     DELAY = 120
     MUSIC_DELAY = 15
@@ -50,13 +52,12 @@ class InstructionScene(gameEngine.scene.Scene):
 
         self.tileMap = gameMaps.InstructionsMap(self)
         self.sprites.append(self.tileMap) 
-        self.x = 0
+        self.y = 50
         
     def update(self):
         gameEngine.scene.Scene.update(self)
-        
-        self.x += 1
-        self.tileMap.setScrollPosition(0, self.x)
+        mousePos = pygame.mouse.get_pos()
+        self.tileMap.setScrollPosition(mousePos[0], mousePos[1])
         
 
     def doEvent(self, event):

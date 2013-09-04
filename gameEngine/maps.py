@@ -15,10 +15,14 @@ class Map(pygame.sprite.Sprite):
         self.data = {}
         self.scene = scene
         self.image = pygame.surface.Surface((self.scene.width, self.scene.height), pygame.SRCALPHA)
+        self.backgroundImage = pygame.surface.Surface((self.scene.width, self.scene.height), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.loadMap(filepath)
         self.scroll = (0.0, 0.0)
         self.scenesize = (self.scene.width, self.scene.height)
+        
+    def setBackground(self, background):
+        self.backgroundImage = background
         
     def loadMap(self, filepath):
         currentSection = ""
@@ -139,57 +143,40 @@ class TileMap(Map):
             Clear map
         """
         self.image.fill((color.BLACK))
-        
+
         """
             Define scroll, offsets, blitoffset variables to render
             tiles according to scroll position values.
         """
-        scrollix = int(self.scroll[0] / self.tilesize)
-        scrolliy = int(self.scroll[1] / self.tilesize)
-        offSetX = self.scroll[0] % self.tilesize
-        offSetY = self.scroll[1] % self.tilesize
-        imgSetY = 0
+        intScrollX = int(self.scroll[0])
+        intScrollY = int(self.scroll[1])
         blitOffSetY = 0
-        blitOffSetX = 0
-
- 
-            
+        blitRectOffSetY = int(self.scroll[1] % self.tilesize)
+        
         """
             Commence with rendering of tiles
         """            
-        for rowCount in range(scrolliy, scrolliy + self.scenets[1]):
-            imgSetX = 0
-            for columnCount in range(scrollix, scrollix + self.scenets[0]):
-                blitRect = pygame.rect.Rect((blitOffSetX, blitOffSetY), (self.tilesize, self.tilesize))
+        for blitY in range(intScrollY, intScrollY + self.scenesize[1] + int(self.scroll[1]) % self.tilesize, self.tilesize):
+            rowCount = int(blitY / self.tilesize)
+            blitOffSetX = 0
+            blitRectOffSetX = int(self.scroll[0] % self.tilesize)
+            for blitX in range(intScrollX, intScrollX + self.scenesize[0] + int(self.scroll[0]) % self.tilesize, self.tilesize):
+                columnCount = int(blitX / self.tilesize)
+                blitRect = pygame.rect.Rect((blitRectOffSetX, blitRectOffSetY), (self.tilesize, self.tilesize))
                 self.image.blit(self.tileimages[self.tiles[rowCount][columnCount]], 
-                                (imgSetX, imgSetY), blitRect)
-                imgSetX += self.tilesize
-            imgSetY += self.tilesize
+                                (blitOffSetX, blitOffSetY), blitRect)
 
-        """
-        for rowCount in range(scrolly, scrolly + sceneyts):
-            imgSetX = 0
-            blitOffSetX = offSetX
-            for columnCount in range(scrollx, scrollx + scenexts):
-                blitRect = pygame.rect.Rect((blitOffSetX, blitOffSetY), (self.tilesize, self.tilesize))
-                self.image.blit(self.tileimages[self.tiles[rowCount][columnCount]], 
-                                (imgSetX, imgSetY), blitRect)
-                # Redefine blit/offsets for next column iteration (are we dealing with
-                # first column or any other column). First columns may or may not have blit offset.
-                if (columnCount != 0 or offSetX == 0):            
-                    imgSetX += self.tilesize
-                    blitOffSetX = 0
+                if (blitX > intScrollX):
+                    blitOffSetX += self.tilesize
                 else:
-                    imgSetX += offSetX
-            # Redefine blit/offsets for next row iteration (are we dealing with
-            # top row or any other row). Top rows may or may not have blit offset.
-            if (rowCount != 0 or offSetY == 0):
-                imgSetY += self.tilesize
-                blitOffSetY = 0
-            else: 
-                imgSetY += offSetY
-
-        """
+                    blitOffSetX = self.tilesize - int(self.scroll[0] % self.tilesize)
+                    blitRectOffSetX = 0
+                    
+            if (blitY > intScrollY):
+                blitOffSetY += self.tilesize
+            else:
+                blitOffSetY = self.tilesize - int(self.scroll[1] % self.tilesize)
+                blitRectOffSetY = 0
         
     def doEvent(self, event):
         pass
